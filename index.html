@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FILLAH — Filantropi Al Hidayah</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --green: #059669; --green-light: #d1fae5; --green-dark: #047857;
+  --red: #dc2626; --red-light: #fee2e2; --red-dark: #b91c1c;
+  --blue: #2563eb; --blue-light: #dbeafe; --blue-dark: #1d4ed8;
+  --orange: #ea580c; --orange-light: #ffedd5; --orange-dark: #c2410c;
+  --bg: #f0f4f8; --card: #ffffff; --sidebar: #0f172a; --sidebar-text: #94a3b8;
+  --sidebar-active: #1e293b; --text: #0f172a; --text-muted: #64748b;
+  --border: #e2e8f0; --header: #ffffff; --input-bg: #f8fafc;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 14px; --radius-sm: 8px;
+  --transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="dark"] {
+  --bg: #0a0f1e; --card: #111827; --sidebar: #060b17; --sidebar-text: #64748b;
+  --sidebar-active: #1e293b; --text: #f1f5f9; --text-muted: #94a3b8;
+  --border: #1e293b; --header: #111827; --input-bg: #1e293b;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;transition:var(--transition)}
+/* SIDEBAR */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:var(--transition)}
+.sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.brand-logo{display:flex;align-items:center;gap:12px}
+.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,#059669,#0d9488);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.brand-name{color:#fff;font-size:17px;font-weight:800;letter-spacing:-0.3px}
+.brand-sub{color:var(--sidebar-text);font-size:10px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{margin-bottom:4px}
+.nav-label{font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:1px;padding:8px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--sidebar-text);font-size:13.5px;font-weight:500;transition:var(--transition);margin-bottom:2px;position:relative}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+.nav-item.active{background:linear-gradient(135deg,rgba(5,150,105,0.25),rgba(13,148,136,0.15));color:#34d399;border:1px solid rgba(52,211,153,0.15)}
+.nav-item .nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#059669;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px}
+.sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.theme-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;cursor:pointer}
+.theme-toggle span{color:var(--sidebar-text);font-size:13px;font-weight:500}
+.toggle-switch{width:38px;height:20px;background:#334155;border-radius:20px;position:relative;transition:var(--transition)}
+.toggle-switch.on{background:#059669}
+.toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:var(--transition)}
+.toggle-switch.on .toggle-knob{left:20px}
+/* MAIN */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;transition:var(--transition)}
+.header{background:var(--header);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.header-left h1{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.4px}
+.header-left p{font-size:12px;color:var(--text-muted);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:12px}
+.header-date{font-size:12px;color:var(--text-muted);background:var(--input-bg);padding:6px 12px;border-radius:8px;border:1px solid var(--border)}
+.burger{display:none;cursor:pointer;font-size:20px;color:var(--text)}
+.content{padding:28px;flex:1}
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border);transition:var(--transition);cursor:default}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.stat-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stat-icon.green{background:var(--green-light)}
+.stat-icon.red{background:var(--red-light)}
+.stat-icon.blue{background:var(--blue-light)}
+.stat-icon.orange{background:var(--orange-light)}
+.stat-value{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:6px}
+.stat-sub{font-size:12px;color:var(--text-muted)}
+.stat-sub.up{color:var(--green)}
+.stat-sub.down{color:var(--red)}
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;margin-bottom:28px}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.chart-title span{color:var(--text-muted);font-weight:400;font-size:12px}
+/* SECTION */
+.section-card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:22px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.section-title{font-size:16px;font-weight:700;color:var(--text)}
+.section-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px}
+.form-input,.form-select,.form-textarea{background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;color:var(--text);font-family:inherit;transition:var(--transition);width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,0.12)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:var(--transition);background:var(--input-bg)}
+.upload-area:hover{border-color:var(--green);background:var(--green-light)}
+.upload-preview{max-width:100%;max-height:150px;border-radius:8px;margin-top:10px;object-fit:cover}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit;letter-spacing:0.1px}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:0 4px 12px rgba(5,150,105,0.3)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(5,150,105,0.4)}
+.btn-danger{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;box-shadow:0 4px 12px rgba(220,38,38,0.3)}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;box-shadow:0 4px 12px rgba(37,99,235,0.3)}
+.btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;box-shadow:0 4px 12px rgba(234,88,12,0.3)}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{background:var(--input-bg)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-icon{padding:8px;border-radius:var(--radius-sm);background:var(--input-bg);border:1.5px solid var(--border);cursor:pointer;transition:var(--transition);font-size:14px}
+.btn-icon:hover{background:var(--border)}
+/* TABLES */
+.table-wrap{overflow-x:auto;margin-top:4px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;font-size:13.5px;color:var(--text);border-bottom:1px solid var(--border);transition:var(--transition)}
+tr:hover td{background:var(--input-bg)}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:var(--green-light);color:var(--green-dark)}
+.badge-red{background:var(--red-light);color:var(--red-dark)}
+.badge-blue{background:var(--blue-light);color:var(--blue-dark)}
+.badge-orange{background:var(--orange-light);color:var(--orange-dark)}
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--input-bg);border-radius:10px;padding:4px;margin-bottom:22px;border:1px solid var(--border);width:fit-content}
+.tab{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);transition:var(--transition)}
+.tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+/* TOAST */
+#toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--card);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow-lg);border-left:4px solid var(--green);display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--text);font-weight:500;min-width:280px;animation:slideIn 0.3s ease;border:1px solid var(--border)}
+.toast.error{border-left-color:var(--red)}
+.toast.info{border-left-color:var(--blue)}
+.toast-icon{font-size:18px}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:28px;width:90%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--text)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px;border-radius:6px;transition:var(--transition)}
+.modal-close:hover{background:var(--input-bg)}
+/* FILTER ROW */
+.filter-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.filter-row .form-input,.filter-row .form-select{flex:1;min-width:140px}
+/* EMPTY */
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:14px}
+/* WA */
+.wa-card{background:linear-gradient(135deg,#064e3b,#065f46);border-radius:var(--radius);padding:24px;color:#fff;margin-bottom:18px}
+.wa-card h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.wa-card p{font-size:13px;opacity:0.8}
+.donatur-check-list{max-height:300px;overflow-y:auto;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px}
+.donatur-check-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:var(--transition)}
+.donatur-check-item:hover{background:var(--input-bg)}
+.donatur-check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--green)}
+.donatur-check-item .dc-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.donatur-check-item .dc-hp{font-size:12px;color:var(--text-muted)}
+/* BUKTI */
+.bukti-img{max-width:80px;max-height:50px;border-radius:6px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
+/* PRINT */
+@media print{
+  .sidebar,.header,.section-actions,.btn,.filter-row,.tabs,.no-print{display:none!important}
+  .main{margin-left:0}
+  body{background:#fff}
+  .section-card,.chart-card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}
+}
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-grid{grid-template-columns:1fr 1fr}.charts-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s ease}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .burger{display:block}
+  .stats-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .content{padding:16px}
+  .header{padding:14px 16px}
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99}
+.overlay.open{display:block}
+/* RUPIAH INPUT */
+.input-prefix{position:relative}
+.input-prefix .prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;font-weight:600;pointer-events:none}
+.input-prefix .form-input{padding-left:44px}
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+/* SUMMARY BAR */
+.summary-bar{display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.sum-item{background:var(--input-bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 18px;flex:1;min-width:160px}
+.sum-item .sum-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px}
+.sum-item .sum-value{font-size:17px;font-weight:800;color:var(--text)}
+/* SEARCH */
+.search-wrap{position:relative}
+.search-wrap .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none}
+.search-wrap .form-input{padding-left:36px}
+/* IMAGE MODAL */
+#img-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#img-modal.open{display:flex}
+#img-modal img{max-width:90vw;max-height:90vh;border-radius:12px}
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- IMAGE MODAL -->
+<div id="img-modal" onclick="this.classList.remove('open')">
+  <img id="img-modal-src" src="" alt="">
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon">🕌</div>
+      <div>
+        <div class="brand-name">FILLAH</div>
+        <div class="brand-sub">Filantropi Al Hidayah</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Menu Utama</div>
+      <div class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="navigate('transaksi')"><span class="nav-icon">💳</span> Transaksi</div>
+      <div class="nav-item" onclick="navigate('donatur')"><span class="nav-icon">👥</span> Donatur</div>
+      <div class="nav-item" onclick="navigate('whatsapp')"><span class="nav-icon">💬</span> WhatsApp</div>
+      <div class="nav-item" onclick="navigate('laporan')"><span class="nav-icon">📋</span> Laporan</div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="theme-toggle" onclick="toggleDark()">
+      <span>🌙 Mode Gelap</span>
+      <div class="toggle-switch" id="dark-toggle"><div class="toggle-knob"></div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="burger" onclick="openSidebar()">☰</span>
+      <div class="header-left">
+        <h1 id="page-title">Dashboard</h1>
+        <p id="page-sub">Selamat datang di FILLAH — Filantropi Al Hidayah</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-date" id="header-date"></div>
+      <button class="btn btn-primary btn-sm" onclick="navigate('transaksi')">+ Transaksi</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-label">Total Dana Masuk</div>
+            <div class="stat-icon green">💰</div>
+          </div>
+          <div class="stat-value green" id="stat-masuk">Rp 0</div>
+          <div class="stat-sub up" id="stat-masuk-count">0 transaksi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-label">Total Dana Keluar</div>
+            <div class="stat-icon red">📤</div>
+          </div>
+          <div class="stat-value" style="color:var(--red)" id="stat-keluar">Rp 0</div>
+          <div class="stat-sub down" id="stat-keluar-count">0 transaksi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-label">Saldo Akhir</div>
+            <div class="stat-icon blue">💵</div>
+          </div>
+          <div class="stat-value" style="color:var(--blue)" id="stat-saldo">Rp 0</div>
+          <div class="stat-sub" id="stat-saldo-info">Saldo tersedia</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-label">Jumlah Donatur</div>
+            <div class="stat-icon orange">🤲</div>
+          </div>
+          <div class="stat-value" style="color:var(--orange)" id="stat-donatur">0</div>
+          <div class="stat-sub" id="stat-donatur-sub">Donatur terdaftar</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Dana Masuk vs Keluar <span>per Bulan</span></div>
+          <canvas id="chartBar" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Distribusi Kategori</div>
+          <canvas id="chartDonut" height="220"></canvas>
+          <div id="donut-legend" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px"></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">📋 Transaksi Terbaru</div>
+          <button class="btn btn-outline btn-sm" onclick="navigate('laporan')">Lihat Semua →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori/Kegiatan</th><th>Donatur</th><th>Jumlah</th></tr></thead>
+            <tbody id="tbl-recent"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TRANSAKSI PAGE ===== -->
+    <div class="page" id="page-transaksi">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('masuk',this)">💰 Dana Masuk</div>
+        <div class="tab" onclick="switchTab('keluar',this)">📤 Dana Keluar</div>
+      </div>
+
+      <!-- DANA MASUK -->
+      <div id="form-masuk">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">➕ Input Dana Masuk</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal *</label>
+              <input type="date" class="form-input" id="m-tanggal">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Donatur *</label>
+              <input type="text" class="form-input" id="m-donatur" placeholder="Nama donatur / anonim" list="donatur-list">
+              <datalist id="donatur-list"></datalist>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jenis Pembayaran</label>
+              <select class="form-select" id="m-jenis">
+                <option>Cash</option>
+                <option>Transfer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategori *</label>
+              <select class="form-select" id="m-kategori">
+                <option>Infaq/Sedekah</option>
+                <option>Zakat</option>
+                <option>Santunan Anak Yatim</option>
+                <option>Wakaf</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Jumlah (Rp) *</label>
+              <div class="input-prefix">
+                <span class="prefix">Rp</span>
+                <input type="text" class="form-input" id="m-jumlah" placeholder="0" oninput="formatRupiah(this)">
+              </div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Keterangan</label>
+              <textarea class="form-textarea" id="m-ket" placeholder="Keterangan tambahan..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Upload Bukti</label>
+              <div class="upload-area" onclick="document.getElementById('m-bukti').click()">
+                <div id="m-bukti-label">📎 Klik untuk upload gambar bukti</div>
+                <img id="m-bukti-preview" class="upload-preview" style="display:none">
+                <input type="file" id="m-bukti" accept="image/*" style="display:none" onchange="previewImg(this,'m-bukti-preview','m-bukti-label')">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:18px;display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveMasuk()">💾 Simpan Dana Masuk</button>
+            <button class="btn btn-outline" onclick="clearForm('masuk')">🗑 Bersihkan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANA KELUAR -->
+      <div id="form-keluar" style="display:none">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">➖ Input Dana Keluar</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal *</label>
+              <input type="date" class="form-input" id="k-tanggal">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jenis Pembayaran</label>
+              <select class="form-select" id="k-jenis">
+                <option>Cash</option>
+                <option>Transfer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kegiatan *</label>
+              <input type="text" class="form-input" id="k-kegiatan" placeholder="Nama kegiatan">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" id="k-kategori">
+                <option>Operasional</option>
+                <option>Infaq/Sedekah</option>
+                <option>Zakat</option>
+                <option>Santunan Anak Yatim</option>
+                <option>Wakaf</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Jumlah (Rp) *</label>
+              <div class="input-prefix">
+                <span class="prefix">Rp</span>
+                <input type="text" class="form-input" id="k-jumlah" placeholder="0" oninput="formatRupiah(this)">
+              </div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Keterangan</label>
+              <textarea class="form-textarea" id="k-ket" placeholder="Keterangan tambahan..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Upload Bukti</label>
+              <div class="upload-area" onclick="document.getElementById('k-bukti').click()">
+                <div id="k-bukti-label">📎 Klik untuk upload gambar bukti</div>
+                <img id="k-bukti-preview" class="upload-preview" style="display:none">
+                <input type="file" id="k-bukti" accept="image/*" style="display:none" onchange="previewImg(this,'k-bukti-preview','k-bukti-label')">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:18px;display:flex;gap:10px">
+            <button class="btn btn-danger" onclick="saveKeluar()">💾 Simpan Dana Keluar</button>
+            <button class="btn btn-outline" onclick="clearForm('keluar')">🗑 Bersihkan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DONATUR PAGE ===== -->
+    <div class="page" id="page-donatur">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">➕ Tambah Donatur</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap *</label>
+            <input type="text" class="form-input" id="d-nama" placeholder="Nama donatur">
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. HP / WhatsApp *</label>
+            <input type="text" class="form-input" id="d-hp" placeholder="628xxxxxxxxx">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Alamat</label>
+            <input type="text" class="form-input" id="d-alamat" placeholder="Alamat lengkap">
+          </div>
+        </div>
+        <div style="margin-top:18px">
+          <button class="btn btn-primary" onclick="saveDonatur()">💾 Simpan Donatur</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">👥 Database Donatur</div>
+          <div class="section-actions">
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="form-input" id="donatur-search" placeholder="Cari donatur..." oninput="renderDonatur()" style="width:220px">
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>No. HP / WA</th><th>Alamat</th><th>Aksi</th></tr></thead>
+            <tbody id="tbl-donatur"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WHATSAPP PAGE ===== -->
+    <div class="page" id="page-whatsapp">
+      <div class="wa-card">
+        <h3>💬 Blast WhatsApp ke Donatur</h3>
+        <p>Kirim pesan sekaligus ke semua atau donatur pilihan dengan satu klik.</p>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">📝 Pesan WhatsApp</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Template Pesan</label>
+          <textarea class="form-textarea" id="wa-pesan" rows="5" placeholder="Ketik pesan di sini...&#10;&#10;Contoh:&#10;Assalamu'alaikum Bapak/Ibu [nama],&#10;Kami mengundang Anda untuk berdonasi...">Assalamu'alaikum Bapak/Ibu,
+
+Semoga Anda dalam keadaan sehat dan dalam lindungan Allah SWT. Kami dari Lembaga Filantropi Al Hidayah mengucapkan terima kasih atas kepercayaan dan dukungan Anda selama ini.
+
+Kami dengan rendah hati mengundang Anda untuk terus berpartisipasi dalam program kemanusiaan kami. Setiap kontribusi Anda sangat berarti bagi sesama yang membutuhkan.
+
+Jazakumullah khairan katsiran 🙏
+
+Wassalamu'alaikum,
+Admin FILLAH</textarea>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="insertVar('[nama]')">+ Nama</button>
+          <button class="btn btn-outline btn-sm" onclick="insertVar('[tanggal]')">+ Tanggal</button>
+          <button class="btn btn-outline btn-sm" onclick="insertVar('[nominal]')">+ Nominal</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">👥 Pilih Donatur</div>
+          <div class="section-actions">
+            <button class="btn btn-outline btn-sm" onclick="selectAllDonatur(true)">✅ Pilih Semua</button>
+            <button class="btn btn-outline btn-sm" onclick="selectAllDonatur(false)">❌ Batal Semua</button>
+          </div>
+        </div>
+        <div class="donatur-check-list" id="wa-donatur-list"></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="generateWALinks()">📱 Generate Link WA</button>
+          <button class="btn btn-orange" onclick="openAllWA()">🚀 Buka Semua WA</button>
+        </div>
+        <div id="wa-links-result" style="margin-top:18px;display:none">
+          <hr class="divider">
+          <div class="section-title" style="margin-bottom:14px">🔗 Link WhatsApp</div>
+          <div id="wa-links-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LAPORAN PAGE ===== -->
+    <div class="page" id="page-laporan">
+      <div class="summary-bar" id="laporan-summary"></div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">📋 Riwayat Transaksi</div>
+          <div class="section-actions">
+            <button class="btn btn-outline btn-sm no-print" onclick="exportExcel()">📊 Export Excel</button>
+            <button class="btn btn-blue btn-sm no-print" onclick="window.print()">🖨️ Print</button>
+          </div>
+        </div>
+        <div class="filter-row no-print">
+          <input type="date" class="form-input" id="f-dari" onchange="renderLaporan()" placeholder="Dari tanggal">
+          <input type="date" class="form-input" id="f-sampai" onchange="renderLaporan()" placeholder="Sampai tanggal">
+          <select class="form-select" id="f-jenis" onchange="renderLaporan()">
+            <option value="">Semua Jenis</option>
+            <option value="Masuk">Dana Masuk</option>
+            <option value="Keluar">Dana Keluar</option>
+          </select>
+          <select class="form-select" id="f-kat" onchange="renderLaporan()">
+            <option value="">Semua Kategori</option>
+            <option>Infaq/Sedekah</option>
+            <option>Zakat</option>
+            <option>Santunan Anak Yatim</option>
+            <option>Wakaf</option>
+            <option>Operasional</option>
+            <option>Lainnya</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="resetFilter()">↺ Reset</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Tanggal</th><th>Jenis</th><th>Kategori/Kegiatan</th>
+                <th>Donatur</th><th>Jumlah</th><th>Keterangan</th><th>Bukti</th><th class="no-print">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-laporan"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="edit-modal-title">Edit Transaksi</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-grid" id="edit-form-content"></div>
+    <div style="margin-top:20px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="saveEdit()">💾 Simpan Perubahan</button>
+      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===========================
+// DATA LAYER
+// ===========================
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+  getTx: () => DB.get('fillah_tx'),
+  setTx: v => DB.set('fillah_tx', v),
+  getDonatur: () => DB.get('fillah_donatur'),
+  setDonatur: v => DB.set('fillah_donatur', v),
+};
+
+let editId = null;
+
+// ===========================
+// UTILS
+// ===========================
+function rupiah(n){ if(!n && n!==0) return 'Rp 0'; return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function parseRupiah(s){ return parseInt((s||'0').replace(/\D/g,'')) || 0; }
+function formatRupiah(el){ let v = el.value.replace(/\D/g,''); if(v) el.value = Number(v).toLocaleString('id-ID'); else el.value = ''; }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(d){ if(!d) return '-'; let parts = d.split('-'); return `${parts[2]}/${parts[1]}/${parts[0]}`; }
+
+function toast(msg, type='success'){
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type==='error'?' error':type==='info'?' info':'');
+  t.innerHTML = `<span class="toast-icon">${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.animation='fadeOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+function toggleDark(){
+  const html = document.documentElement;
+  const t = document.getElementById('dark-toggle');
+  if(html.getAttribute('data-theme')==='dark'){ html.setAttribute('data-theme','light'); t.classList.remove('on'); }
+  else { html.setAttribute('data-theme','dark'); t.classList.add('on'); }
+  localStorage.setItem('fillah_dark', html.getAttribute('data-theme'));
+}
+
+function previewImg(input, previewId, labelId){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById(labelId).style.display = 'none';
+    input._base64 = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function viewImg(src){ document.getElementById('img-modal-src').src=src; document.getElementById('img-modal').classList.add('open'); }
+
+// ===========================
+// NAVIGATION
+// ===========================
+const pageTitles = {
+  dashboard:['Dashboard','Ringkasan keuangan & statistik'],
+  transaksi:['Transaksi','Input dan kelola transaksi dana'],
+  donatur:['Donatur','Database dan manajemen donatur'],
+  whatsapp:['WhatsApp Massal','Kirim pesan ke banyak donatur'],
+  laporan:['Laporan','Riwayat & export transaksi'],
+};
+
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{ if(n.textContent.toLowerCase().includes(page.substring(0,4).toLowerCase())) n.classList.add('active'); });
+  document.getElementById('page-title').textContent = pageTitles[page][0];
+  document.getElementById('page-sub').textContent = pageTitles[page][1];
+  closeSidebar();
+  if(page==='dashboard') renderDashboard();
+  if(page==='laporan'){ renderLaporan(); renderSummary(); }
+  if(page==='donatur') renderDonatur();
+  if(page==='whatsapp') renderWADonatur();
+}
+
+function switchTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('form-masuk').style.display = name==='masuk' ? 'block' : 'none';
+  document.getElementById('form-keluar').style.display = name==='keluar' ? 'block' : 'none';
+}
+
+// ===========================
+// TRANSAKSI
+// ===========================
+function saveMasuk(){
+  const tgl = document.getElementById('m-tanggal').value;
+  const don = document.getElementById('m-donatur').value.trim();
+  const jenis = document.getElementById('m-jenis').value;
+  const kat = document.getElementById('m-kategori').value;
+  const jml = parseRupiah(document.getElementById('m-jumlah').value);
+  const ket = document.getElementById('m-ket').value.trim();
+  const bukti = document.getElementById('m-bukti')._base64 || '';
+  if(!tgl){ toast('Tanggal wajib diisi','error'); return; }
+  if(!don){ toast('Nama donatur wajib diisi','error'); return; }
+  if(!jml){ toast('Jumlah wajib diisi','error'); return; }
+  const tx = DB.getTx();
+  tx.push({ id:uid(), tipe:'Masuk', tanggal:tgl, donatur:don, jenis, kategori:kat, jumlah:jml, keterangan:ket, bukti, ts:Date.now() });
+  DB.setTx(tx);
+  clearForm('masuk');
+  toast('Dana masuk berhasil disimpan! ✨');
+}
+
+function saveKeluar(){
+  const tgl = document.getElementById('k-tanggal').value;
+  const jenis = document.getElementById('k-jenis').value;
+  const keg = document.getElementById('k-kegiatan').value.trim();
+  const kat = document.getElementById('k-kategori').value;
+  const jml = parseRupiah(document.getElementById('k-jumlah').value);
+  const ket = document.getElementById('k-ket').value.trim();
+  const bukti = document.getElementById('k-bukti')._base64 || '';
+  if(!tgl){ toast('Tanggal wajib diisi','error'); return; }
+  if(!keg){ toast('Nama kegiatan wajib diisi','error'); return; }
+  if(!jml){ toast('Jumlah wajib diisi','error'); return; }
+  const tx = DB.getTx();
+  tx.push({ id:uid(), tipe:'Keluar', tanggal:tgl, donatur:keg, jenis, kategori:kat, jumlah:jml, keterangan:ket, bukti, ts:Date.now() });
+  DB.setTx(tx);
+  clearForm('keluar');
+  toast('Dana keluar berhasil disimpan!');
+}
+
+function clearForm(type){
+  if(type==='masuk'){
+    ['m-tanggal','m-donatur','m-ket'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('m-jumlah').value='';
+    document.getElementById('m-bukti-preview').style.display='none';
+    document.getElementById('m-bukti-label').style.display='block';
+    document.getElementById('m-bukti')._base64 = '';
+  } else {
+    ['k-tanggal','k-kegiatan','k-ket'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('k-jumlah').value='';
+    document.getElementById('k-bukti-preview').style.display='none';
+    document.getElementById('k-bukti-label').style.display='block';
+    document.getElementById('k-bukti')._base64 = '';
+  }
+}
+
+function deleteTx(id){
+  if(!confirm('Hapus transaksi ini?')) return;
+  DB.setTx(DB.getTx().filter(t=>t.id!==id));
+  renderLaporan(); renderSummary();
+  if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  toast('Transaksi dihapus');
+}
+
+function editTx(id){
+  const tx = DB.getTx().find(t=>t.id===id);
+  if(!tx) return;
+  editId = id;
+  document.getElementById('edit-modal-title').textContent = 'Edit Transaksi ' + tx.tipe;
+  const form = document.getElementById('edit-form-content');
+  form.innerHTML = `
+    <div class="form-group"><label class="form-label">Tanggal</label><input type="date" class="form-input" id="e-tanggal" value="${tx.tanggal}"></div>
+    <div class="form-group"><label class="form-label">${tx.tipe==='Masuk'?'Donatur':'Kegiatan'}</label><input type="text" class="form-input" id="e-donatur" value="${tx.donatur}"></div>
+    <div class="form-group"><label class="form-label">Jenis</label>
+      <select class="form-select" id="e-jenis"><option${tx.jenis==='Cash'?' selected':''}>Cash</option><option${tx.jenis==='Transfer'?' selected':''}>Transfer</option></select></div>
+    <div class="form-group"><label class="form-label">Kategori</label>
+      <select class="form-select" id="e-kat">
+        ${['Infaq/Sedekah','Zakat','Santunan Anak Yatim','Wakaf','Operasional','Lainnya'].map(k=>`<option${k===tx.kategori?' selected':''}>${k}</option>`).join('')}
+      </select></div>
+    <div class="form-group full"><label class="form-label">Jumlah (Rp)</label>
+      <div class="input-prefix"><span class="prefix">Rp</span><input type="text" class="form-input" id="e-jumlah" value="${Number(tx.jumlah).toLocaleString('id-ID')}" oninput="formatRupiah(this)"></div></div>
+    <div class="form-group full"><label class="form-label">Keterangan</label><textarea class="form-textarea" id="e-ket">${tx.keterangan||''}</textarea></div>
+  `;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function saveEdit(){
+  const tx = DB.getTx();
+  const idx = tx.findIndex(t=>t.id===editId);
+  if(idx<0) return;
+  tx[idx].tanggal = document.getElementById('e-tanggal').value;
+  tx[idx].donatur = document.getElementById('e-donatur').value;
+  tx[idx].jenis = document.getElementById('e-jenis').value;
+  tx[idx].kategori = document.getElementById('e-kat').value;
+  tx[idx].jumlah = parseRupiah(document.getElementById('e-jumlah').value);
+  tx[idx].keterangan = document.getElementById('e-ket').value;
+  DB.setTx(tx);
+  closeModal();
+  renderLaporan(); renderSummary();
+  if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  toast('Transaksi berhasil diperbarui ✨');
+}
+
+function closeModal(){ document.getElementById('edit-modal').classList.remove('open'); editId=null; }
+
+// ===========================
+// DONATUR
+// ===========================
+function saveDonatur(){
+  const nama = document.getElementById('d-nama').value.trim();
+  const hp = document.getElementById('d-hp').value.trim();
+  const alamat = document.getElementById('d-alamat').value.trim();
+  if(!nama){ toast('Nama wajib diisi','error'); return; }
+  if(!hp){ toast('No. HP wajib diisi','error'); return; }
+  const list = DB.getDonatur();
+  list.push({ id:uid(), nama, hp, alamat, ts:Date.now() });
+  DB.setDonatur(list);
+  document.getElementById('d-nama').value='';
+  document.getElementById('d-hp').value='';
+  document.getElementById('d-alamat').value='';
+  renderDonatur();
+  updateDonaturDatalist();
+  toast('Donatur berhasil ditambahkan 🤲');
+}
+
+function deleteDonatur(id){
+  if(!confirm('Hapus donatur ini?')) return;
+  DB.setDonatur(DB.getDonatur().filter(d=>d.id!==id));
+  renderDonatur();
+  updateDonaturDatalist();
+  toast('Donatur dihapus');
+}
+
+function renderDonatur(){
+  const q = (document.getElementById('donatur-search')?.value||'').toLowerCase();
+  const list = DB.getDonatur().filter(d=>!q || d.nama.toLowerCase().includes(q) || d.hp.includes(q));
+  const tb = document.getElementById('tbl-donatur');
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👥</div><p>Belum ada donatur</p></div></td></tr>`; return; }
+  tb.innerHTML = list.map((d,i)=>`
+    <tr>
+      <td style="color:var(--text-muted);font-weight:600">${i+1}</td>
+      <td><strong>${d.nama}</strong></td>
+      <td><a href="https://wa.me/${d.hp.replace(/\D/g,'')}" target="_blank" style="color:var(--green);text-decoration:none">📱 ${d.hp}</a></td>
+      <td style="color:var(--text-muted)">${d.alamat||'-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteDonatur('${d.id}')">🗑 Hapus</button></td>
+    </tr>`).join('');
+}
+
+function updateDonaturDatalist(){
+  const dl = document.getElementById('donatur-list');
+  if(!dl) return;
+  dl.innerHTML = DB.getDonatur().map(d=>`<option value="${d.nama}">`).join('');
+}
+
+// ===========================
+// WHATSAPP
+// ===========================
+function renderWADonatur(){
+  const list = DB.getDonatur();
+  const c = document.getElementById('wa-donatur-list');
+  if(!list.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>Belum ada donatur terdaftar</p></div>'; return; }
+  c.innerHTML = list.map(d=>`
+    <div class="donatur-check-item">
+      <input type="checkbox" id="wac-${d.id}" value="${d.hp}" data-nama="${d.nama}">
+      <label for="wac-${d.id}" style="flex:1;cursor:pointer">
+        <div class="dc-name">${d.nama}</div>
+        <div class="dc-hp">📱 ${d.hp}</div>
+      </label>
+    </div>`).join('');
+}
+
+function selectAllDonatur(val){
+  document.querySelectorAll('#wa-donatur-list input[type=checkbox]').forEach(cb=>cb.checked=val);
+}
+
+function insertVar(v){ const el = document.getElementById('wa-pesan'); el.value += v; el.focus(); }
+
+function generateWALinks(){
+  const pesan = document.getElementById('wa-pesan').value.trim();
+  if(!pesan){ toast('Pesan wajib diisi','error'); return; }
+  const checks = [...document.querySelectorAll('#wa-donatur-list input:checked')];
+  if(!checks.length){ toast('Pilih minimal satu donatur','error'); return; }
+  const container = document.getElementById('wa-links-result');
+  const linkList = document.getElementById('wa-links-list');
+  container.style.display = 'block';
+  linkList.innerHTML = checks.map(cb=>{
+    const hp = cb.value.replace(/\D/g,'');
+    const nama = cb.dataset.nama;
+    const msg = pesan.replace(/\[nama\]/g, nama).replace(/\[tanggal\]/g, new Date().toLocaleDateString('id-ID')).replace(/\[nominal\]/g, '');
+    const url = `https://wa.me/${hp}?text=${encodeURIComponent(msg)}`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--input-bg);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+      <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${nama} (${hp})</span>
+      <a href="${url}" target="_blank" class="btn btn-primary btn-sm">💬 Buka WA</a>
+    </div>`;
+  }).join('');
+  toast(`${checks.length} link WA berhasil dibuat! 🚀`,'info');
+}
+
+function openAllWA(){
+  const pesan = document.getElementById('wa-pesan').value.trim();
+  if(!pesan){ toast('Pesan wajib diisi','error'); return; }
+  const checks = [...document.querySelectorAll('#wa-donatur-list input:checked')];
+  if(!checks.length){ toast('Pilih minimal satu donatur','error'); return; }
+  if(!confirm(`Buka ${checks.length} tab WhatsApp?`)) return;
+  checks.forEach((cb,i)=>{
+    setTimeout(()=>{
+      const hp = cb.value.replace(/\D/g,'');
+      const nama = cb.dataset.nama;
+      const msg = pesan.replace(/\[nama\]/g,nama).replace(/\[tanggal\]/g,new Date().toLocaleDateString('id-ID'));
+      window.open(`https://wa.me/${hp}?text=${encodeURIComponent(msg)}`,'_blank');
+    }, i*300);
+  });
+}
+
+// ===========================
+// LAPORAN
+// ===========================
+function renderLaporan(){
+  const dari = document.getElementById('f-dari')?.value || '';
+  const sampai = document.getElementById('f-sampai')?.value || '';
+  const jenis = document.getElementById('f-jenis')?.value || '';
+  const kat = document.getElementById('f-kat')?.value || '';
+  let tx = DB.getTx();
+  if(dari) tx = tx.filter(t=>t.tanggal>=dari);
+  if(sampai) tx = tx.filter(t=>t.tanggal<=sampai);
+  if(jenis) tx = tx.filter(t=>t.tipe===jenis);
+  if(kat) tx = tx.filter(t=>t.kategori===kat);
+  tx.sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  const tb = document.getElementById('tbl-laporan');
+  if(!tx.length){ tb.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>Tidak ada transaksi</p></div></td></tr>`; return; }
+  tb.innerHTML = tx.map((t,i)=>`
+    <tr>
+      <td style="color:var(--text-muted);font-weight:600">${i+1}</td>
+      <td style="white-space:nowrap">${fmtDate(t.tanggal)}</td>
+      <td><span class="badge ${t.tipe==='Masuk'?'badge-green':'badge-red'}">${t.tipe==='Masuk'?'↑':'↓'} ${t.tipe}</span></td>
+      <td><span class="badge badge-blue" style="font-size:10px">${t.kategori||'-'}</span></td>
+      <td>${t.donatur||'-'}</td>
+      <td style="font-weight:700;color:${t.tipe==='Masuk'?'var(--green)':'var(--red)'}">
+        ${t.tipe==='Masuk'?'+':'-'}${rupiah(t.jumlah)}</td>
+      <td style="color:var(--text-muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.keterangan||''}">${t.keterangan||'-'}</td>
+      <td>${t.bukti?`<img src="${t.bukti}" class="bukti-img" onclick="viewImg('${t.bukti}')" title="Lihat bukti">`:'-'}</td>
+      <td class="no-print" style="white-space:nowrap">
+        <button class="btn btn-outline btn-sm" onclick="editTx('${t.id}')" style="margin-right:4px">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTx('${t.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+  renderSummary();
+}
+
+function renderSummary(){
+  const tx = DB.getTx();
+  const masuk = tx.filter(t=>t.tipe==='Masuk').reduce((s,t)=>s+t.jumlah,0);
+  const keluar = tx.filter(t=>t.tipe==='Keluar').reduce((s,t)=>s+t.jumlah,0);
+  const saldo = masuk - keluar;
+  const el = document.getElementById('laporan-summary');
+  if(el) el.innerHTML = `
+    <div class="sum-item"><div class="sum-label">Total Masuk</div><div class="sum-value" style="color:var(--green)">${rupiah(masuk)}</div></div>
+    <div class="sum-item"><div class="sum-label">Total Keluar</div><div class="sum-value" style="color:var(--red)">${rupiah(keluar)}</div></div>
+    <div class="sum-item"><div class="sum-label">Saldo Akhir</div><div class="sum-value" style="color:var(--blue)">${rupiah(saldo)}</div></div>
+    <div class="sum-item"><div class="sum-label">Total Transaksi</div><div class="sum-value">${tx.length}</div></div>`;
+}
+
+function resetFilter(){
+  ['f-dari','f-sampai'].forEach(id=>document.getElementById(id).value='');
+  ['f-jenis','f-kat'].forEach(id=>document.getElementById(id).value='');
+  renderLaporan();
+}
+
+// ===========================
+// EXPORT
+// ===========================
+function exportExcel(){
+  const tx = DB.getTx().sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  if(!tx.length){ toast('Tidak ada data untuk diexport','error'); return; }
+  const rows = tx.map((t,i)=>({
+    No: i+1,
+    Tanggal: fmtDate(t.tanggal),
+    Jenis: t.tipe,
+    Kategori: t.kategori,
+    'Donatur/Kegiatan': t.donatur,
+    'Jenis Bayar': t.jenis,
+    Jumlah: t.jumlah,
+    Keterangan: t.keterangan||'',
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,'Transaksi',ws);
+  const tx2 = DB.getDonatur().map((d,i)=>({No:i+1,Nama:d.nama,'No HP':d.hp,Alamat:d.alamat||''}));
+  const ws2 = XLSX.utils.json_to_sheet(tx2);
+  XLSX.utils.book_append_sheet(wb,'Donatur',ws2);
+  XLSX.writeFile(wb,`FILLAH_${today()}.xlsx`);
+  toast('Export Excel berhasil! 📊');
+}
+
+// ===========================
+// DASHBOARD RENDER
+// ===========================
+let chartBar = null, chartDonut = null;
+
+function renderDashboard(){
+  const tx = DB.getTx();
+  const masuk = tx.filter(t=>t.tipe==='Masuk');
+  const keluar = tx.filter(t=>t.tipe==='Keluar');
+  const totalMasuk = masuk.reduce((s,t)=>s+t.jumlah,0);
+  const totalKeluar = keluar.reduce((s,t)=>s+t.jumlah,0);
+  const saldo = totalMasuk - totalKeluar;
+  document.getElementById('stat-masuk').textContent = rupiah(totalMasuk);
+  document.getElementById('stat-masuk-count').textContent = masuk.length + ' transaksi';
+  document.getElementById('stat-keluar').textContent = rupiah(totalKeluar);
+  document.getElementById('stat-keluar-count').textContent = keluar.length + ' transaksi';
+  document.getElementById('stat-saldo').textContent = rupiah(saldo);
+  document.getElementById('stat-saldo-info').textContent = saldo >= 0 ? 'Saldo tersedia' : 'Defisit saldo';
+  document.getElementById('stat-donatur').textContent = DB.getDonatur().length;
+  document.getElementById('stat-donatur-sub').textContent = 'Donatur terdaftar';
+
+  // Recent
+  const recent = [...tx].sort((a,b)=>b.ts-a.ts).slice(0,6);
+  const tb = document.getElementById('tbl-recent');
+  if(!recent.length){ tb.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><p>Belum ada transaksi</p></div></td></tr>`; }
+  else tb.innerHTML = recent.map(t=>`
+    <tr>
+      <td>${fmtDate(t.tanggal)}</td>
+      <td><span class="badge ${t.tipe==='Masuk'?'badge-green':'badge-red'}">${t.tipe==='Masuk'?'↑ Masuk':'↓ Keluar'}</span></td>
+      <td><span class="badge badge-blue" style="font-size:10px">${t.kategori||'-'}</span></td>
+      <td>${t.donatur||'-'}</td>
+      <td style="font-weight:700;color:${t.tipe==='Masuk'?'var(--green)':'var(--red)'}">${t.tipe==='Masuk'?'+':'-'}${rupiah(t.jumlah)}</td>
+    </tr>`).join('');
+
+  renderBarChart(tx);
+  renderDonutChart(masuk);
+}
+
+function renderBarChart(tx){
+  const dark = document.documentElement.getAttribute('data-theme')==='dark';
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const year = new Date().getFullYear();
+  const mData = Array(12).fill(0), kData = Array(12).fill(0);
+  tx.forEach(t=>{ const m = parseInt(t.tanggal.split('-')[1])-1; if(t.tanggal.startsWith(year)){ if(t.tipe==='Masuk') mData[m]+=t.jumlah; else kData[m]+=t.jumlah; } });
+  const ctx = document.getElementById('chartBar').getContext('2d');
+  if(chartBar) chartBar.destroy();
+  chartBar = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:months,
+      datasets:[
+        {label:'Dana Masuk',data:mData,backgroundColor:'rgba(5,150,105,0.8)',borderRadius:6},
+        {label:'Dana Keluar',data:kData,backgroundColor:'rgba(220,38,38,0.8)',borderRadius:6}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:dark?'#94a3b8':'#64748b',font:{size:12}}}},
+      scales:{
+        y:{ticks:{callback:v=>v>=1e6?'Rp'+(v/1e6)+'jt':v>=1e3?'Rp'+(v/1e3)+'rb':'Rp'+v,color:dark?'#64748b':'#94a3b8'},grid:{color:dark?'#1e293b':'#f1f5f9'}},
+        x:{ticks:{color:dark?'#64748b':'#94a3b8'},grid:{display:false}}
+      }
+    }
+  });
+}
+
+function renderDonutChart(masuk){
+  const dark = document.documentElement.getAttribute('data-theme')==='dark';
+  const cats = {};
+  masuk.forEach(t=>{ cats[t.kategori] = (cats[t.kategori]||0) + t.jumlah; });
+  const labels = Object.keys(cats), data = Object.values(cats);
+  const colors = ['#059669','#2563eb','#ea580c','#7c3aed','#0891b2','#64748b'];
+  const ctx = document.getElementById('chartDonut').getContext('2d');
+  if(chartDonut) chartDonut.destroy();
+  if(!data.length){
+    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+    document.getElementById('donut-legend').innerHTML='<span style="color:var(--text-muted);font-size:13px">Belum ada data</span>';
+    return;
+  }
+  chartDonut = new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors.slice(0,labels.length),borderWidth:3,borderColor:'var(--card)'}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${rupiah(ctx.raw)}`}}}
+    }
+  });
+  const total = data.reduce((s,v)=>s+v,0);
+  document.getElementById('donut-legend').innerHTML = labels.map((l,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;min-width:120px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${colors[i]};flex-shrink:0"></div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text)">${l}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${((data[i]/total)*100).toFixed(1)}%</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===========================
+// INIT
+// ===========================
+function init(){
+  // set date
+  document.getElementById('header-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // set today on forms
+  document.getElementById('m-tanggal').value = today();
+  document.getElementById('k-tanggal').value = today();
+  // dark mode restore
+  const dm = localStorage.getItem('fillah_dark');
+  if(dm==='dark'){ document.documentElement.setAttribute('data-theme','dark'); document.getElementById('dark-toggle').classList.add('on'); }
+  // sample data if empty
+  if(!DB.getTx().length){
+    const samples = [
+      {id:uid(),tipe:'Masuk',tanggal:'2026-01-10',donatur:'Bapak Ahmad',jenis:'Transfer',kategori:'Infaq/Sedekah',jumlah:500000,keterangan:'Infaq bulanan',bukti:'',ts:1704844800000},
+      {id:uid(),tipe:'Masuk',tanggal:'2026-02-15',donatur:'Ibu Siti',jenis:'Cash',kategori:'Zakat',jumlah:1000000,keterangan:'Zakat fitrah',bukti:'',ts:1707782400000},
+      {id:uid(),tipe:'Masuk',tanggal:'2026-03-05',donatur:'PT Berkah Jaya',jenis:'Transfer',kategori:'Santunan Anak Yatim',jumlah:5000000,keterangan:'Donasi santunan',bukti:'',ts:1741219200000},
+      {id:uid(),tipe:'Keluar',tanggal:'2026-01-20',donatur:'Sembako Yatim Jan',jenis:'Cash',kategori:'Santunan Anak Yatim',jumlah:300000,keterangan:'Pembelian sembako',bukti:'',ts:1705622400000},
+      {id:uid(),tipe:'Keluar',tanggal:'2026-02-25',donatur:'Kegiatan Santunan Feb',jenis:'Transfer',kategori:'Operasional',jumlah:200000,keterangan:'Biaya operasional',bukti:'',ts:1740441600000},
+      {id:uid(),tipe:'Masuk',tanggal:'2026-04-01',donatur:'Hamba Allah',jenis:'Cash',kategori:'Infaq/Sedekah',jumlah:250000,keterangan:'',bukti:'',ts:1743465600000},
+      {id:uid(),tipe:'Keluar',tanggal:'2026-04-10',donatur:'Santunan April',jenis:'Cash',kategori:'Santunan Anak Yatim',jumlah:800000,keterangan:'Santunan 20 anak yatim',bukti:'',ts:1744243200000},
+    ];
+    DB.setTx(samples);
+  }
+  if(!DB.getDonatur().length){
+    DB.setDonatur([
+      {id:uid(),nama:'Bapak Ahmad Fauzi',hp:'6281234567890',alamat:'Jl. Melati No. 5, Sidoarjo',ts:Date.now()},
+      {id:uid(),nama:'Ibu Siti Rahayu',hp:'6287654321098',alamat:'Jl. Mawar No. 12, Surabaya',ts:Date.now()},
+      {id:uid(),nama:'PT Berkah Jaya',hp:'6281122334455',alamat:'Jl. Raya Industri No. 88',ts:Date.now()},
+    ]);
+  }
+  updateDonaturDatalist();
+  renderDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
